@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EIEC — Open Roles</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --accent: #7cff6b;
+    --accent2: #6b8cff;
+    --accent3: #ff6b9d;
+    --accent4: #ffb86b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(124,255,107,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .nav-logo span {
+    color: var(--accent);
+  }
+
+  .nav-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 100px 48px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    position: relative;
+    z-index: 1;
+    padding: 0 48px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0a0f;
+  }
+
+  /* Main layout */
+  .main {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  /* Project section */
+  .project {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color 0.3s;
+  }
+
+  .project:hover {
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  .project-sidebar {
+    padding: 40px 32px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .project[data-color="green"] .project-sidebar::before { background: var(--accent); }
+  .project[data-color="blue"] .project-sidebar::before { background: var(--accent2); }
+  .project[data-color="pink"] .project-sidebar::before { background: var(--accent3); }
+  .project[data-color="orange"] .project-sidebar::before { background: var(--accent4); }
+
+  .project-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  .project-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .project-tagline {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .project[data-color="blue"] .meta-dot { background: var(--accent2); }
+  .project[data-color="pink"] .meta-dot { background: var(--accent3); }
+  .project[data-color="orange"] .meta-dot { background: var(--accent4); }
+
+  /* Roles grid */
+  .roles-grid {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .roles-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .role-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .role-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.02);
+    transform: translateX(4px);
+  }
+
+  .role-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .role-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .role-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .tag-biz { background: rgba(124,255,107,0.1); color: var(--accent); }
+  .tag-swe { background: rgba(107,140,255,0.1); color: var(--accent2); }
+  .tag-hw { background: rgba(255,107,157,0.1); color: var(--accent3); }
+  .tag-design { background: rgba(255,184,107,0.1); color: var(--accent4); }
+  .tag-mkt { background: rgba(180,107,255,0.1); color: #c47fff; }
+
+  .role-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .role-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .role-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .apply-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .project[data-color="green"] .apply-btn { background: rgba(124,255,107,0.1); color: var(--accent); }
+  .project[data-color="blue"] .apply-btn { background: rgba(107,140,255,0.1); color: var(--accent2); }
+  .project[data-color="pink"] .apply-btn { background: rgba(255,107,157,0.1); color: var(--accent3); }
+  .project[data-color="orange"] .apply-btn { background: rgba(255,184,107,0.1); color: var(--accent4); }
+
+  .apply-btn:hover {
+    opacity: 0.8;
+  }
+
+  /* Hidden role */
+  .role-card.hidden { display: none; }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .footer-text span {
+    color: var(--accent);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .project {
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  .project:nth-child(1) { animation-delay: 0.05s; }
+  .project:nth-child(2) { animation-delay: 0.1s; }
+  .project:nth-child(3) { animation-delay: 0.15s; }
+  .project:nth-child(4) { animation-delay: 0.2s; }
+  .project:nth-child(5) { animation-delay: 0.25s; }
+  .project:nth-child(6) { animation-delay: 0.3s; }
+
+  @media (max-width: 768px) {
+    nav, .hero, .filter-bar, .main { padding-left: 20px; padding-right: 20px; }
+    .project { grid-template-columns: 1fr; }
+    .project-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">EIEC <span>✦</span></div>
+  <div class="nav-tag">Engineering Innovators & Entrepreneurs Club — UCSD</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Open roles · Spring 2026</div>
+  <h1>Build something<br><em>real.</em></h1>
+  <p class="hero-sub">EIEC's portfolio of early-stage ventures is looking for students to join as unpaid interns. Real problems, real teams, real experience — no coffee runs.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-number">6</span>
+      <span class="stat-label">Active Projects</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">22</span>
+      <span class="stat-label">Open Roles</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">5–8h</span>
+      <span class="stat-label">Per Week</span>
+    </div>
+  </div>
+</section>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filter('all', this)">All Roles</button>
+  <button class="filter-btn" onclick="filter('biz', this)">Business Strategy</button>
+  <button class="filter-btn" onclick="filter('swe', this)">Software Eng</button>
+  <button class="filter-btn" onclick="filter('hw', this)">Hardware Eng</button>
+  <button class="filter-btn" onclick="filter('design', this)">Design</button>
+  <button class="filter-btn" onclick="filter('mkt', this)">Marketing</button>
+</div>
+
+<main class="main">
+
+  <!-- PROJECT SYNTHESIZER -->
+  <div class="project" data-color="green">
+    <div class="project-sidebar">
+      <span class="project-num">01 / 06</span>
+      <div class="project-name">Project Synthesizer</div>
+      <p class="project-tagline">AI-driven robotic automation platform for laboratory workflows. Digital twins in NVIDIA Isaac Sim, deployed to real robots.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>Deeptech · Robotics</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">Identify which UCSD labs are our best first customers, build outreach lists, and structure our go-to-market. Expect spreadsheets, cold emails, and honest conversations with PIs. Good fit if you're into deeptech commercialization or B2B sales.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="swe">
+        <div class="role-top">
+          <span class="role-title">Software Engineer Intern</span>
+          <span class="role-tag tag-swe">SWE</span>
+        </div>
+        <p class="role-desc">Build simulation workflows in NVIDIA Isaac Sim and help develop the software layer that connects digital twin models to physical lab equipment. Python required, ROS or robotics experience a plus.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="design">
+        <div class="role-top">
+          <span class="role-title">Designer Intern</span>
+          <span class="role-tag tag-design">Design</span>
+        </div>
+        <p class="role-desc">Make our platform feel real — interface mockups, demo visuals, and pitch deck assets. You'll work directly with the founding team to shape how we present to lab directors and investors.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTONOMOUS ROBOTS -->
+  <div class="project" data-color="blue">
+    <div class="project-sidebar">
+      <span class="project-num">02 / 06</span>
+      <div class="project-name">Autonomous Robots</div>
+      <p class="project-tagline">Confined space inspection robotics for data centers, pipelines, HVAC, and other systems where humans can't safely go.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>Robotics · Hardware</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">Help us figure out which vertical to go after first — data centers, pipelines, HVAC, or something else. You'll run competitive research, structure customer discovery, and build the business case for our initial market.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="swe">
+        <div class="role-top">
+          <span class="role-title">Software Engineer Intern</span>
+          <span class="role-tag tag-swe">SWE</span>
+        </div>
+        <p class="role-desc">Build autonomy and sensor integration for small-scale robots navigating confined spaces. Comfort with embedded systems, Python, or ROS is ideal. Hardware access available on campus.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="hw">
+        <div class="role-top">
+          <span class="role-title">Hardware Engineer Intern</span>
+          <span class="role-tag tag-hw">Hardware</span>
+        </div>
+        <p class="role-desc">Work on the physical robot — chassis design, suction adhesion mechanisms, and modular end effectors. CAD required (SolidWorks or Fusion 360). Access to UCSD fabrication resources available.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPIRA BIO -->
+  <div class="project" data-color="pink">
+    <div class="project-sidebar">
+      <span class="project-num">03 / 06</span>
+      <div class="project-name">Respira Bio</div>
+      <p class="project-tagline">Non-invasive lung cancer detection via breath biomarkers. Fast, affordable, and accessible compared to existing diagnostic methods.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>Biotech · MedDevice</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">Map out the regulatory and commercial landscape for diagnostic devices. Who buys first — hospitals, insurers, or direct-to-consumer? You'll help us answer that with real research and stakeholder interviews.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="hw">
+        <div class="role-top">
+          <span class="role-title">Hardware Engineer Intern</span>
+          <span class="role-tag tag-hw">Hardware</span>
+        </div>
+        <p class="role-desc">Help develop and iterate on the breathalyzer device prototype — sensor integration, cartridge design, and testing. Biomedical engineering or chemistry background a strong plus.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="design">
+        <div class="role-top">
+          <span class="role-title">Designer Intern</span>
+          <span class="role-tag tag-design">Design</span>
+        </div>
+        <p class="role-desc">Design the physical product experience and brand identity. How does this device feel in a clinical setting? You'll work on both industrial design concepts and presentation materials.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERAAI -->
+  <div class="project" data-color="orange">
+    <div class="project-sidebar">
+      <span class="project-num">04 / 06</span>
+      <div class="project-name">AleraAI</div>
+      <p class="project-tagline">AI-powered personal safety platform. Real-time risk prediction, safer route guidance, and proactive awareness for students and commuters.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>AI · Consumer App</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">Own our go-to-market strategy for university partnerships. Research how campus safety offices make purchasing decisions, build outreach materials, and help structure a pilot program with UCSD.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="swe">
+        <div class="role-top">
+          <span class="role-title">Software Engineer Intern</span>
+          <span class="role-tag tag-swe">SWE</span>
+        </div>
+        <p class="role-desc">Build the core mobile app — real-time location processing, risk prediction logic, and alert systems. React Native or Flutter preferred. Comfort with APIs and location services required.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="mkt">
+        <div class="role-top">
+          <span class="role-title">Marketing Intern</span>
+          <span class="role-tag tag-mkt">Marketing</span>
+        </div>
+        <p class="role-desc">Community-first growth strategy. Run our social presence, design student-facing campaigns, and figure out how to get AleraAI in front of the people who actually need it. Strong writing required.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLARITYCART -->
+  <div class="project" data-color="green">
+    <div class="project-sidebar">
+      <span class="project-num">05 / 06</span>
+      <div class="project-name">ClarityCart</div>
+      <p class="project-tagline">AI customer support for e-commerce. Accurate, personalized answers that save store owners time and actually help customers.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>AI · SaaS · B2B</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">Help carve out a defensible niche in a crowded market. Audit competitors, identify underserved segments, and structure our pitch for independent Shopify merchants. Expect blunt competitive analysis.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="swe">
+        <div class="role-top">
+          <span class="role-title">Software Engineer Intern</span>
+          <span class="role-tag tag-swe">SWE</span>
+        </div>
+        <p class="role-desc">Build an AI chatbot that understands store context — product catalogs, order history, policies. LLM API experience (OpenAI, Anthropic) preferred. Full-stack a plus.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="mkt">
+        <div class="role-top">
+          <span class="role-title">Marketing Intern</span>
+          <span class="role-tag tag-mkt">Marketing</span>
+        </div>
+        <p class="role-desc">Reach small e-commerce owners where they already are. Design content and outreach strategies targeting Shopify communities, Reddit, and founder networks. Channel creativity required.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTELLIGENT CAREER PLANNING -->
+  <div class="project" data-color="blue">
+    <div class="project-sidebar">
+      <span class="project-num">06 / 06</span>
+      <div class="project-name">Intelligent Career Planning</div>
+      <p class="project-tagline">AI-powered career platform for students. Opportunity matching, application builder, and career path guidance — actually tailored to you.</p>
+      <div class="project-meta">
+        <div class="meta-item"><span class="meta-dot"></span>AI · EdTech · B2C/B2B</div>
+        <div class="meta-item"><span class="meta-dot"></span>5–8 hrs / week</div>
+        <div class="meta-item"><span class="meta-dot"></span>Unpaid · Academic credit possible</div>
+      </div>
+    </div>
+    <div class="roles-grid">
+      <div class="roles-header">Open roles</div>
+
+      <div class="role-card" data-type="biz">
+        <div class="role-top">
+          <span class="role-title">Business Strategy Intern</span>
+          <span class="role-tag tag-biz">Strategy</span>
+        </div>
+        <p class="role-desc">The market is crowded — LinkedIn, Handshake, Teal, Rezi. Your job is to find the gap none of them fill and build the case for why we own it. Heavy on research, competitive analysis, and customer discovery.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="swe">
+        <div class="role-top">
+          <span class="role-title">Software Engineer Intern</span>
+          <span class="role-tag tag-swe">SWE</span>
+        </div>
+        <p class="role-desc">Build the core platform — opportunity matching logic, application builder, and user dashboard. Full-stack experience required. Familiarity with LLM APIs a strong plus.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="design">
+        <div class="role-top">
+          <span class="role-title">Designer Intern</span>
+          <span class="role-tag tag-design">Design</span>
+        </div>
+        <p class="role-desc">Own the product's entire visual and UX experience. This needs to feel cleaner and smarter than Handshake. Figma required, prior product design experience preferred.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+
+      <div class="role-card" data-type="mkt">
+        <div class="role-top">
+          <span class="role-title">Marketing Intern</span>
+          <span class="role-tag tag-mkt">Marketing</span>
+        </div>
+        <p class="role-desc">Student-to-student growth. Design the campaigns, run the social, and build the referral loop that gets this in front of every college junior stressed about recruiting season.</p>
+        <div class="role-footer">
+          <span class="role-time">5–8 hrs / week</span>
+          <a href="#" class="apply-btn">Apply →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-text">EIEC — Engineering Innovators & Entrepreneurs Club · <span>UCSD</span> · Spring 2026</span>
+  <span class="footer-text">Questions? Reach out to your club leadership.</span>
+</footer>
+
+<script>
+  function filter(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.role-card').forEach(card => {
+      if (type === 'all' || card.dataset.type === type) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
